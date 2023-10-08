@@ -54,5 +54,8 @@ namespace JOIEnergy.Controllers
 
             return new ObjectResult(recommendations);
         }
+
+
+        
     }
 }

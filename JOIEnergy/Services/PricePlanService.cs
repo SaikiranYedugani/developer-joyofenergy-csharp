@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JOIEnergy.Domain;
+using JOIEnergy.Functions;
 
 namespace JOIEnergy.Services
 {
@@ -18,24 +19,11 @@ namespace JOIEnergy.Services
             _meterReadingService = meterReadingService;
         }
 
-        private decimal calculateAverageReading(List<ElectricityReading> electricityReadings)
+       
+        public decimal calculateCost(List<ElectricityReading> electricityReadings, PricePlan pricePlan)
         {
-            var newSummedReadings = electricityReadings.Select(readings => readings.Reading).Aggregate((reading, accumulator) => reading + accumulator);
-
-            return newSummedReadings / electricityReadings.Count();
-        }
-
-        private decimal calculateTimeElapsed(List<ElectricityReading> electricityReadings)
-        {
-            var first = electricityReadings.Min(reading => reading.Time);
-            var last = electricityReadings.Max(reading => reading.Time);
-
-            return (decimal)(last - first).TotalHours;
-        }
-        private decimal calculateCost(List<ElectricityReading> electricityReadings, PricePlan pricePlan)
-        {
-            var average = calculateAverageReading(electricityReadings);
-            var timeElapsed = calculateTimeElapsed(electricityReadings);
+            var average = ConsumptionCalculations.calculateAverageReading(electricityReadings);
+            var timeElapsed = ConsumptionCalculations.calculateTimeElapsed(electricityReadings);
             var averagedCost = average/timeElapsed;
             return averagedCost * pricePlan.UnitRate;
         }
@@ -50,5 +38,8 @@ namespace JOIEnergy.Services
             }
             return _pricePlans.ToDictionary(plan => plan.EnergySupplier.ToString(), plan => calculateCost(electricityReadings, plan));
         }
+
+
+      
     }
 }
